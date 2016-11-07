@@ -1,0 +1,226 @@
+### Clustering 
+## Clustering in R
+telecom <- read.csv(file.choose(), header = TRUE)
+attach(telecom)
+View(telecom)
+str(telecom)
+summary(telecom)
+
+set.seed(2)
+move <- telecom
+move$Churn <- NULL
+move$Int.l.Plan <- NULL
+move$VMail.Plan <- NULL
+
+str(move)
+str(telecom)
+cluster <- kmeans(model.matrix(~.+0, data=move), centers=5)
+cluster
+
+set.seed(20)
+Cluster1 <- kmeans(telecom[, 1:2], 5, nstart = 20)
+Cluster1
+Cluster1$cluster
+
+## Corealtion matrix
+str(telecom)
+relation1 <- telecom
+relation1$Churn <- NULL
+str(relation1)
+relation <- data.frame(Account.Length,VMail.Plan,VMail.Message,VMail.Message,Day.Mins,Eve.Mins,Night.Mins)
+
+##Final correlation
+relation <-cor(telecom[,unlist(lapply(telecom, is.numeric))])
+relation
+
+d <- data.frame(Account.Length,VMail.Plan,VMail.Message,Day.Calls,Day.Charge,Eve.Calls,VMail.Message,Intl.Calls,Intl.Charge,Intl.Mins,CustServ.Calls,Eve.Charge,Day.Mins, Eve.Mins,Night.Calls,Night.Charge,Night.Mins,Int.l.Plan,Night.Calls,Night.Charge,State, Area.Code, Phone)
+m <- cor(d)
+
+corrplot(m, method = "circle")
+
+################################Correlation#########################################3333
+telecom <- read.csv("C:/BAPM/Project/Churn.csv")
+attach(telecom)
+View(telecom)
+
+remove <- telecom
+remove$State <- NULL
+str(remove)
+remove$Phone <- NULL
+library(corrplot)
+
+m <- cor(remove)
+u <- round(m,2)
+corrplot(u, method = "number")
+
+corrplot(u, method = "number", addn=T, t1.srt = 40,
+        addgrid.col = "gray50", tl.cex=0.7, assign.col="min2max",
+        tl.col = "black", cl.ratio=0.1, addcolor="no",
+        col = colorRampPalette(c("yellow","green","blue"))(100))
+
+#################################Mean and Median Boxplot################################
+telecom <- read.csv("C:/BAPM/Project/Churn.csv")
+table(telecom$Churn)
+str(telecom)
+attach(telecom)
+
+summ <- telecom
+summ$State <- NULL
+summ$Phone <- NULL
+summ$Area.Code <- NULL
+str(summ)
+
+removechurn <- summ
+removechurn$Churn <- NULL
+str(removechurn)
+
+summary(removechurn)
+
+max(telecom$Account.Length) - min(telecom$Account.Length)
+max(VMail.Message) - min(VMail.Message)
+max(Day.Mins) - min(Day.Mins)
+max(Eve.Mins) - min(Eve.Mins)
+max(Night.Mins) - min(Night.Mins)
+max(Intl.Mins) - min(Intl.Mins)
+max(Day.Calls) - min(Day.Calls)
+max(Day.Charge) - min(Day.Charge)
+max(Eve.Calls) - min(Eve.Calls)
+max(Eve.Charge) - min(Eve.Charge)
+max(Night.Calls) - min(Night.Calls)
+max(Night.Charge) - min(Night.Charge)
+max(Intl.Calls) - min(Intl.Calls)
+max(Intl.Charge) - min(Intl.Charge)
+
+boxplot(removechurn)
+quantile(Account.Length, probs = c(0, 0.25,0.5,0.75,1))
+
+boxplot(Account.Length, ylab = "Accountlength", main ="Boxplot", col = "red")
+
+boxplot(VMail.Message, main ="Boxplot", col = "red")
+
+boxplot(Day.Mins, main ="Boxplot", col = "red")
+
+boxplot(Eve.Mins, main ="Boxplot", col = "red")
+
+boxplot(Night.Mins, main ="Boxplot", col = "red")
+
+boxplot(Intl.Mins, main ="Boxplot", col = "red")
+
+boxplot(Day.Calls, main ="Boxplot", col = "red")
+
+boxplot(Day.Charge, main ="Boxplot", col = "red")
+
+boxplot(Eve.Calls, main ="Boxplot", col = "red")
+
+boxplot(Eve.Charge, main ="Boxplot", col = "red")
+
+boxplot(Night.Calls, main ="Boxplot", col = "red")
+
+boxplot(Night.Charge, main ="Boxplot", col = "red")
+
+boxplot(Intl.Calls, main ="Boxplot", col = "red")
+
+boxplot(Intl.Charge, main ="Boxplot", col = "red")
+
+sqrt(var(Account.Length))
+sqrt(var(VMail.Message))
+sqrt(var(Day.Mins))
+sqrt(var(Eve.Mins))
+sqrt(var(Night.Mins))
+sqrt(var(Intl.Mins))
+sqrt(var(Day.Calls))
+sqrt(var(Day.Charge))
+sqrt(var(Eve.Calls))
+sqrt(var(Eve.Charge))
+sqrt(var(Night.Calls))
+sqrt(var(Night.Charge))
+sqrt(var(Intl.Calls))
+sqrt(var(Intl.Charge))
+
+## to find the mode
+getmode <- function(removechurn) {
+  uniqv <- unique(removechurn)
+  uniqv[which.max(tabulate(match(removechurn, uniqv)))]
+}
+
+getmode(removechurn$Intl.Charge)
+
+###########################Decison tree####################################################
+telecom <- read.csv(file.choose(), header = TRUE)
+attach(telecom)
+str(telecom)
+remove <- telecom
+remove$Churn <- NULL
+attach(remove)
+
+
+## Split the data
+install.packages("caTools")
+library(caTools)
+set.seed(1000)
+sample1 <- sample.split(change$Churn, SplitRatio = 0.75)
+
+dtrain <- subset(change, sample1==TRUE)
+dtest <- subset(change, sample1==FALSE)
+
+library(rpart)
+dt <- rpart(Churn ~ ., data = dtrain, method = "class", minbucket = 25)
+library(rpart.plot)
+prp(dt)
+
+## Accuracy 92%
+predictdt <- predict(dt, newdata = dtest, type = "class")
+table(dtest$Churn, predictdt)
+
+
+library(ROCR)
+rod <- predict(dt, newdata = dtest)
+rod
+
+pred <- prediction(rod[,2], dtest$Churn)
+perf <- performance(pred, "tpr","fpr")
+plot(perf)
+as.numeric(performance(pred, "auc")@y.values) ## Accuracy --89%
+
+### Gradient Boosting
+
+library(Metrics)
+library(caret)
+library(gbm)
+
+gbmdata <- read.csv(file.choose())
+
+gbmdata$Phone <- NULL
+str(gbmdata)
+
+gbmdata$Churn <- as.factor(gbmdata$Churn)
+str(gbmdata)
+
+
+library(caTools)
+set.seed(1000)
+gbmsample <- sample.split(gbmdata$Churn, SplitRatio = 0.75)
+
+gbmtrain <- subset(gbmdata, gbmsample==TRUE)
+gbmtest <- subset(gbmdata, gbmsample==FALSE)
+
+table(gbmdata$Churn)
+prop.table(table(gbmdata$Churn))
+
+fitControl <- trainControl(method = "repeatedcv", number = 4, repeats = 4)
+
+gbmtrain$Churn <- ifelse(gbmtrain$Churn == 1, "Yes","No")
+set.seed(33)
+gbmFit1 <- train(Churn ~ ., data = gbmtrain, method = "gbm", trControl = fitControl,verbose = FALSE)
+
+gbm_dev <- predict(gbmFit1, gbmtrain,type= "prob")
+# which ever is highest of No and and Yes columns. That will be associated to the outcome variable.
+gbm_dev$outcome <- ifelse(gbm_dev$No > gbm_dev$Yes,"No","Yes")
+auc(gbmdata$Churn,gbm_dev)
+table(gbmtrain$Churn,gbm_dev$outcome)
+
+gbm_ITV1 <- predict(gbmFit1, gbmtest,type= "prob")
+# which ever is highest of No and and Yes columns. That will be associated to the outcome variable.
+gbm_ITV1$outcome <- ifelse(gbm_ITV1$No > gbm_ITV1$Yes,"No","Yes")
+auc(gbmdata$Churn,gbm_ITV1)
+table(gbmtest$Churn,gbm_ITV1$outcome)
